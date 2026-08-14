@@ -536,10 +536,11 @@ async def _send_group_member_wife(bot: Bot, ev: Event):
     )
     user_key = _user_key(ev)
     record = WifeRecord.from_member(member)
-    data = _load_wife_data()
-    context = _get_today_context(data, ev)
-    context['marry_members'][user_key] = _record_to_dict(record, ev, user_key)
-    _save_wife_data(data)
+    async with _daily_data_lock:
+        data = await _load_wife_data()
+        context = _get_today_context(data, ev)
+        context['marry_members'][user_key] = _record_to_dict(record, ev, user_key)
+        await _save_wife_data(data)
 
     text = _build_member_text(member, 'marry') if bool(_cfg('DailyWifeSendText')) else None
     await _send_marry_member_result_image(bot, member, text, ev.user_id, ev.group_id is not None)
@@ -551,7 +552,7 @@ async def _send_group_member_petpet(bot: Bot, ev: Event):
         return await _send_prefixed(bot, '这个命令只能在群聊里使用。')
 
     user_key = _user_key(ev)
-    data = _load_wife_data()
+    data = await _load_wife_data()
     context = _get_today_context(data, ev)
     raw_record = context['marry_members'].get(user_key)
     if not _has_active_wife(raw_record):

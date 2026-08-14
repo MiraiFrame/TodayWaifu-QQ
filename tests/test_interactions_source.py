@@ -126,6 +126,8 @@ class InteractionSourceTests(unittest.TestCase):
     def test_marry_member_petpet_command_uses_stored_member(self) -> None:
         daily_source = (ROOT / 'twf' / 'daily.py').read_text(encoding='utf-8')
         shared_source = (ROOT / 'twf' / 'shared.py').read_text(encoding='utf-8')
+        self.assertIn('data = await _load_wife_data()', daily_source)
+        self.assertIn('await _save_wife_data(data)', daily_source)
         self.assertIn("context['marry_members'][user_key] = _record_to_dict(record, ev, user_key)", daily_source)
         self.assertIn('_send_marry_member_result_image(bot, member, text, ev.user_id, ev.group_id is not None)', daily_source)
         self.assertIn("marry_member_sv.on_fullmatch(\n    ('摸头', '群友摸头')", daily_source)
